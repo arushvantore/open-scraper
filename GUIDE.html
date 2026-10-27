@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>open-scraper — User Guide</title>
+<style>
+  @page { size: A4; margin: 14mm 12mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: #1b1f24; font-size: 10.5pt; line-height: 1.55; margin: 0;
+  }
+
+  /* ---------- cover ---------- */
+  .cover {
+    min-height: 245mm; display: flex; flex-direction: column;
+    justify-content: center; page-break-after: always; padding: 0 8mm;
+  }
+  .cover .badge {
+    display: inline-block; background: #0b6b4f; color: #fff; font-size: 9pt;
+    font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    padding: 5px 12px; border-radius: 20px; margin-bottom: 22px; width: fit-content;
+  }
+  .cover h1 { font-size: 40pt; line-height: 1.05; margin: 0 0 6px; letter-spacing: -.02em; }
+  .cover h2 { font-size: 15pt; font-weight: 500; color: #57606a; margin: 0 0 30px; }
+  .cover .blurb { font-size: 12pt; color: #3a4149; max-width: 150mm; }
+  .cover .facts {
+    margin-top: 34px; border-top: 2px solid #e1e4e8; padding-top: 18px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; font-size: 10pt;
+  }
+  .cover .facts b { display: block; color: #0b6b4f; font-size: 8.5pt;
+    text-transform: uppercase; letter-spacing: .08em; margin-bottom: 2px; }
+  .cover .url {
+    margin-top: 26px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10pt; background: #f3f4f6; border: 1px solid #e1e4e8;
+    padding: 9px 13px; border-radius: 6px; width: fit-content;
+  }
+
+  /* ---------- structure ---------- */
+  section { page-break-before: always; }
+  section.first { page-break-before: avoid; }
+  h3.num {
+    font-size: 17pt; margin: 0 0 4px; letter-spacing: -.01em;
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  h3.num .n {
+    background: #0b6b4f; color: #fff; font-size: 10pt; width: 24px; height: 24px;
+    border-radius: 50%; display: inline-flex; align-items: center;
+    justify-content: center; flex: none; transform: translateY(-2px);
+  }
+  .sub { color: #57606a; margin: 0 0 16px; font-size: 10pt; }
+  h4 {
+    font-size: 10.5pt; text-transform: uppercase; letter-spacing: .06em;
+    color: #0b6b4f; margin: 22px 0 8px; border-bottom: 1px solid #e1e4e8;
+    padding-bottom: 4px;
+  }
+  p { margin: 0 0 10px; }
+
+  /* ---------- code ---------- */
+  pre {
+    margin: 0 0 12px; padding: 11px 13px; border-radius: 7px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 8.6pt; line-height: 1.5; white-space: pre-wrap; word-break: break-word;
+    overflow: hidden;
+  }
+  pre.cmd  { background: #0d1117; color: #e6edf3; border: 1px solid #0d1117; }
+  pre.cmd .p { color: #7ee787; }       /* prompt */
+  pre.cmd .c { color: #8b949e; }       /* comment */
+  pre.term { background: #f6f8fa; color: #1b1f24; border: 1px solid #e1e4e8; }
+  pre.term .dim { color: #6a737d; }
+  pre.term .new { color: #0b6b4f; font-weight: 700; }
+  pre.term .ok  { color: #0b6b4f; }
+  pre.term .warn { color: #9a6700; }
+  .label {
+    display: inline-block; font-size: 7.5pt; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: #57606a; margin-bottom: 5px;
+  }
+
+  /* ---------- inline code & tables ---------- */
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 9pt;
+    background: #f3f4f6; border: 1px solid #e1e4e8; padding: 1px 5px;
+    border-radius: 4px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 9pt; margin: 0 0 14px; }
+  th, td { text-align: left; padding: 6px 9px; border-bottom: 1px solid #e1e4e8; vertical-align: top; }
+  th { background: #f6f8fa; font-size: 8pt; text-transform: uppercase;
+       letter-spacing: .05em; color: #57606a; }
+  td code { font-size: 8.4pt; }
+
+  /* ---------- callouts ---------- */
+  .box {
+    border-left: 4px solid #0b6b4f; background: #f0f9f5;
+    padding: 11px 14px; border-radius: 0 7px 7px 0; margin: 0 0 14px; font-size: 9.6pt;
+  }
+  .box.warn { border-left-color: #9a6700; background: #fff8e1; }
+  .box.stop { border-left-color: #b62324; background: #fdf1f1; }
+  .box b { display: block; margin-bottom: 3px; font-size: 8.5pt;
+    text-transform: uppercase; letter-spacing: .07em; }
+
+  /* ---------- file tree ---------- */
+  .tree {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 8.8pt;
+    background: #f6f8fa; border: 1px solid #e1e4e8; border-radius: 7px;
+    padding: 12px 15px; line-height: 1.7; margin: 0 0 12px;
+    white-space: pre-wrap; overflow: hidden;
+  }
+  .tree .hl { color: #0b6b4f; font-weight: 700; }
+  .tree .cmt { color: #6a737d; }
+
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 0 0 14px; }
+  .steps li {
+    counter-increment: s; position: relative; padding: 0 0 9px 30px; font-size: 10pt;
+  }
+  .steps li::before {
+    content: counter(s); position: absolute; left: 0; top: 1px;
+    background: #e1e4e8; color: #1b1f24; font-size: 8.5pt; font-weight: 700;
+    width: 19px; height: 19px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .foot {
+    margin-top: 26px; padding-top: 12px; border-top: 1px solid #e1e4e8;
+    font-size: 8.5pt; color: #6a737d;
+  }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+</style>
+</head>
+<body>
+
+<!-- ============================ COVER ============================ -->
+<div class="cover">
+  <span class="badge">User Guide · v1.0</span>
+  <h1>open-scraper</h1>
+  <h2>Two read-only scrapers that work on any public website</h2>
+  <p class="blurb">
+    <b>page_scraper.py</b> grabs pages right now and saves them as clean Markdown.
+    <b>daemon.py</b> keeps watching a list of pages and saves a copy every time
+    something actually changes.
+    <br><br>
+    No accounts. No API keys. No passwords. The tools only ever send plain
+    <code>GET</code> requests — they cannot log in anywhere, by design.
+  </p>
+
+  <div class="facts">
+    <div><b>Install time</b>About 2 minutes, three commands</div>
+    <div><b>Dependencies</b>Playwright only</div>
+    <div><b>Python</b>3.10 or newer</div>
+    <div><b>License</b>MIT — use it, fork it, ship it</div>
+    <div><b>Output</b>Markdown files in <code>output/</code>, never uploaded</div>
+    <div><b>Politeness</b>robots.txt honoured, 2-second pause between pages</div>
+  </div>
+
+  <div class="url">https://github.com/arushvantore/open-scraper</div>
+
+  <div class="foot">
+    Created by <b>@arushvantore</b> · Follow this guide top to bottom and you will
+    have both tools running without needing any further help.
+  </div>
+</div>
+
+<!-- ============================ 1. INSTALL ============================ -->
+<section class="first">
+  <h3 class="num"><span class="n">1</span> Install</h3>
+  <p class="sub">One time only. Takes about two minutes.</p>
+
+  <p>You need <b>Python 3.10 or newer</b>. Check yours:</p>
+  <span class="label">Terminal</span>
+  <pre class="cmd"><span class="p">$</span> python3 --version
+<span class="p">$</span> Python 3.14.7</pre>
+
+  <h4>Copy and paste these four commands</h4>
+  <span class="label">Terminal</span>
+  <pre class="cmd"><span class="p">$</span> git clone https://github.com/arushvantore/open-scraper.git
+<span class="p">$</span> cd open-scraper
+<span class="p">$</span> python3 -m venv .venv
+<span class="p">$</span> .venv/bin/pip install -r requirements.txt
+<span class="p">$</span> .venv/bin/playwright install chromium</pre>
+
+  <div class="box">
+    <b>What these do</b>
+    <code>git clone</code> copies the repo &nbsp;·&nbsp;
+    <code>venv</code> makes a private Python sandbox for this project &nbsp;·&nbsp;
+    <code>pip install</code> pulls in Playwright &nbsp;·&nbsp;
+    <code>playwright install chromium</code> downloads the browser it drives.
+  </div>
+
+  <div class="box warn">
+    <b>Windows</b>
+    Use <code>.venv\Scripts\python</code> everywhere this guide writes
+    <code>.venv/bin/python</code>. The rest is identical.
+  </div>
+
+  <h4>Check it worked</h4>
+  <span class="label">Terminal</span>
+  <pre class="cmd"><span class="p">$</span> .venv/bin/python page_scraper.py https://example.com</pre>
+  <span class="label">You should see</span>
+  <pre class="term">open-scraper :: 1 page(s) -> output/
+  GET   https://example.com
+  <span class="ok">SAVE  output/example-com.md  (133 words, hash a4ccdd75cf70ea93)</span>
+
+Done. 1 ok, 0 skipped/failed.</pre>
+
+  <p>If you see <code>SAVE output/example-com.md</code>, installation is finished.
+     If you see an error, jump to <b>Troubleshooting</b> on the last page.</p>
+
+  <div class="foot">From here on, every command starts with <code>cd open-scraper</code>
+    (or <code>cd ~/open-scraper</code> if you cloned it into your home folder).</div>
+</section>
+
+<!-- ============================ 2. ONE PAGE ============================ -->
+<section>
+  <h3 class="num"><span class="n">2</span> Scrape a single page</h3>
+  <p class="sub">The most common thing you will do. One command, one file.</p>
+
+  <span class="label">Terminal</span>
+  <pre class="cmd"><span class="p">$</span> cd open-scraper
+<span class="p">$</span> .venv/bin/python page_scraper.py https://example.com</pre>
+
+  <span class="label">Output</span>
+  <pre class="term">open-scraper :: 1 page(s) -> output/
+  GET   https://example.com
+  SAVE  output/example-com.md  (133 words, hash a4ccdd75cf70ea93)
+
+Done. 1 ok, 0 skipped/failed.</pre>
+
+  <p>Open <code>output/example-com.md</code>. It looks like this:</p>
+
+  <span class="label">output/example-com.md</span>
+  <pre class="term">---
+url: https://example.com/
+title: Example Domain
+fetched: 2026-10-27T19:51:56Z
+selector: (whole page)
+word_count: 133
+content_hash: a4ccdd75cf70ea93
+---
+
+# Example Domain
+
+This domain is for use in documentation examples without needing
+permission. This is not a service; avoid relying on it for testing
+and monitoring purposes.</pre>
+
+  <div class="box">
+    <b>What survived the conversion</b>
+    Headings, links, lists, quotes, code blocks and images all become clean
+    Markdown. Scripts, styles and navigation menus are thrown away — so what
+    you get is the actual content of the page.
+  </div>
+
+  <h4>Scrape several pages at once</h4>
+  <p>Just list them, separated by spaces:</p>
+  <span class="label">Terminal</span>
+  <pre class="cmd"><span class="p">$</span> .venv/bin/python page_scraper.py https://a.com https://b.com https://c.com</pre>
+
+  <p>It fetches them one at a time, with a 2-second pause between each, so you
+     are never hammering a server.</p>
+</section>
+
+<!-- ============================ 3. SELECTOR ============================ -->
+<section>
+  <h3 class="num"><span class="n">3</span> Grab only part of a page</h3>
+  <p class="sub">Use <code>--selector</code> when you want the article, not the whole site chrome.</p>
+
+  <p>Without a selector you get everything. With one, you get just that element:</p>
+
+  <span class="label">Terminal</span>
+  <pre class="cmd"><span class="p">$</span> .venv/bin/python page_scraper.py https://www.python.org/downloads/ --selector "#content" --links</pre>
+
+  <span class="label">Output</span>
+  <pre class="term">open-scraper :: 1 page(s) -> output/
+  GET   https://www.python.org/downloads/
+  <span class="ok">SAVE  output/www-python-org-downloads.md  (2379 words, hash 2b14189d3b4d6968)</span>
+
+Done. 1 ok, 0 skipped/failed.</pre>
+
+  <p>The file now starts with <code>selector: #content</code> in its header, and ends
+     with a <b>Links</b> section listing every URL found inside it (because we
+     passed <code>--links</code>).</p>
+
+  <h4>How to find a selector — 4 steps</h4>
+  <ol class="steps">
+    <li>Open the page in Chrome, Firefox or Edge.</li>
+    <li><b>Right-click</b> the piece of text you want → <b>Inspect</b>.</li>
+    <li>In the panel that opens, <b>right-click</b> the highlighted line of HTML
+        → <b>Copy</b> → <b>Copy selector</b>.</li>
+    <li>Paste it after <code>--selector</code>, wrapped in quotes.</li>
+  </ol>
+
+  <span class="label">Example</span>
+  <pre class="cmd"><span class="p">$</span> .venv/bin/python page_scraper.py https://blog.example.com/post \
+     <span class="c">--selector "article.post-body"</span></pre>
+
+  <div class="box warn">
+    <b>Selector matched nothing?</b>
+    The tool stops and says so, rather than saving an empty file. Re-copy the
+    selector, or drop <code>--selector</code> entirely to take the whole page.
+  </div>
+
+  <h4>Three more flags you will use</h4>
+  <table>
+    <tr><th>Flag</th><th>What it adds</th></tr>
+    <tr><td><code>--screenshot</code></td>
+        <td>A full-page <code>.png</code> saved next to the Markdown file.</td></tr>
+    <tr><td><code>--wait 5000</code></td>
+        <td>Waits 5 seconds for JavaScript to finish. Use on pages that render late.</td></tr>
+    <tr><td><code>--json summary.json</code></td>
+        <td>A machine-readable summary of everything you just scraped.</td></tr>
+  </table>
+</section>
+
+<!-- ============================ 4. TARGETS FILE ============================ -->
+<section>
+  <h3 class="num"><span class="n">4</span> Scrape a list of pages from a file</h3>
+  <p class="sub">For anything longer than a handful of URLs.</p>
+
+  <p>Edit the file called <b><code>targets.txt</code></b> that sits in the repo root.
+     Paste one URL per line. Lines starting with <code>#</code> are ignored.</p>
+
+  <span class="label">targets.txt</span>
+  <pre class="term"># One URL per line. Lines starting with # are ignored.
+# Only public pages here - this tool cannot log in anywhere.
+
+https://example.com
+https://www.python.org
+https://news.ycombinator.com</pre>
+
+  <div class="box stop">
+    <b>Three rules</b>
+    Every URL must start with <code>https://</code> · one URL per line ·
+    no quotes or commas needed. Anything else and the tool stops with a clear
+    message telling you which line is wrong.
+  </div>
+
+  <p>Then run it:</p>
+  <span class="label">Terminal</span>
+  <pre class="cmd"><span class="p">$</span> .venv/bin/python page_scraper.py --targets targets.txt</pre>
+
+  <span class="label">Real output</span>
+  <pre class="term">open-scraper :: 3 page(s) -> output/
+  GET   https://example.com
+  SAVE  output/example-com.md  (133 words, hash a4ccdd75cf70ea93)
+  GET   https://www.python.org
+  SAVE  output/www-python-org.md  (1409 words, hash c4779ed592c5605c)
+  GET   https://news.ycombinator.com
+  SAVE  output/news-ycombinator-com.md  (598 words, hash 1bf66fb2282146f5)
+
+Done. 3 ok, 0 skipped/failed.</pre>
+
+  <p>Three files are now in <code>output/</code>. Use <code>--out mydir</code> to send
+     them somewhere else, and <code>--pause 5</code> to slow down between pages.</p>
+
+  <div class="box">
+    <b>Same file works for both tools</b>
+    <code>targets.txt</code> is read by <b>page_scraper.py</b> and by <b>daemon.py</b>.
+    Maintain one list, drive both tools from it.
+  </div>
+</section>
+
+<!-- ============================ 5. DAEMON ============================ -->
+<section>
+  <h3 class="num"><span class="n">5</span> Watch pages for changes (the daemon)</h3>
+  <p class="sub">Re-checks your list on a timer and archives only what actually changed.</p>
+
+  <span class="label">Terminal — run forever, checking every 5 minutes</span>
+  <pre class="cmd"><span class="p">$</span> .venv/bin/python daemon.py --targets targets.txt --interval 300</pre>
+
+  <span class="label">Terminal — run a single check and exit (good for schedulers)</span>
+  <pre class="cmd"><span class="p">$</span> .venv/bin/python daemon.py --targets targets.txt --once</pre>
+
+  <p><b>Press Ctrl-C to stop.</b> It finishes the page it is on, saves its state,
+     prints <code>daemon stopped</code>, and exits cleanly.</p>
+
+  <h4>First run — everything is new</h4>
+  <pre class="term"><span class="dim">2026-10-27T20:46:16Z</span> daemon start: 3 target(s), interval 300s, out=output
+  <span class="new">NEW</span>   https://example.com -> 20261027_204620_example-com.md
+<span class="dim">2026-10-27T20:46:20Z</span> CHANGED https://example.com (133 words)
+  <span class="new">NEW</span>   https://www.python.org -> 20261027_204625_www-python-org.md
+<span class="dim">2026-10-27T20:46:25Z</span> CHANGED https://www.python.org (1409 words)
+  <span class="new">NEW</span>   https://news.ycombinator.com -> 20261027_204631_news-ycombinator-com.md
+<span class="dim">2026-10-27T20:46:31Z</span> CHANGED https://news.ycombinator.com (598 words)
+<span class="dim">2026-10-27T20:46:33Z</span> cycle done: 3 seen, 3 changed, 0 failed</pre>
+
+  <h4>Second run, seconds later — nothing moved</h4>
+  <pre class="term"><span class="dim">2026-10-27T20:46:33Z</span> daemon start: 3 target(s), interval 300s, out=output
+  same  https://example.com
+<span class="dim">2026-10-27T20:46:36Z</span> same   https://example.com (133 words)
+  same  https://www.python.org
+<span class="dim">2026-10-27T20:46:41Z</span> same   https://www.python.org (1409 words)
+  same  https://news.ycombinator.com
+<span class="dim">2026-10-27T20:46:47Z</span> same   https://news.ycombinator.com (598 words)
+<span class="dim">2026-10-27T20:46:49Z</span> cycle done: 3 seen, 0 changed, 0 failed</pre>
+
+  <p>Unchanged pages are <b>not</b> re-archived, so your folder never fills up with
+     identical copies.</p>
+
+  <h4>Daemon flags worth knowing</h4>
+  <table>
+    <tr><th>Flag</th><th>Does</th></tr>
+    <tr><td><code>--interval N</code></td><td>Seconds between checks. Default <code>300</code> (5 min).</td></tr>
+    <tr><td><code>--once</code></td><td>One check, then exit.</td></tr>
+    <tr><td><code>--diff-only</code></td><td>Log changes but write no archive files.</td></tr>
+    <tr><td><code>--selector "css"</code></td><td>Watch one element instead of the whole page.</td></tr>
+    <tr><td><code>--log FILE</code></td><td>Where the timeline goes. Default <code>daemon.log</code>.</td></tr>
+  </table>
+</section>
+
+<!-- ============================ 6. OUTPUT ============================ -->
+<section>
+  <h3 class="num"><span class="n">6</span> Where your files go</h3>
+  <p class="sub">Everything lands in the <code>output/</code> folder — on your machine only.</p>
+
+  <div class="tree">output/
+├── <span class="hl">live/</span>       <span class="cmt">current state of each watched page  (daemon)</span>
+├── <span class="hl">archive/</span>    <span class="cmt">one file per real change, stamped   (daemon)</span>
+│               <span class="cmt">e.g. 20261027_204620_example-com.md</span>
+├── <span class="hl">*.md</span>        <span class="cmt">one-shot scrapes                (page_scraper)</span>
+├── <span class="hl">*.png</span>       <span class="cmt">screenshots, if you used --screenshot</span>
+└── <span class="hl">.state.json</span> <span class="cmt">hashes the daemon uses to spot change</span></div>
+
+  <div class="box">
+    <b>Important — this folder is gitignored</b>
+    <code>output/</code> is listed in <code>.gitignore</code>, so scraped content can
+    never be pushed to GitHub by accident. Your captures stay on your computer.
+    The same is true of <code>daemon.log</code> and the <code>.venv/</code> folder.
+  </div>
+
+  <h4>Every flag in one place</h4>
+  <table>
+    <tr><th>Flag</th><th>Tool</th><th>What it does</th></tr>
+    <tr><td><code>--targets FILE</code></td><td>both</td><td>Read URLs from a file.</td></tr>
+    <tr><td><code>--selector CSS</code></td><td>both</td><td>Take only that element.</td></tr>
+    <tr><td><code>--links</code></td><td>scraper</td><td>Append every link found.</td></tr>
+    <tr><td><code>--screenshot</code></td><td>scraper</td><td>Also save a full-page PNG.</td></tr>
+    <tr><td><code>--json FILE</code></td><td>scraper</td><td>Write a JSON summary.</td></tr>
+    <tr><td><code>--out DIR</code></td><td>both</td><td>Choose the output folder.</td></tr>
+    <tr><td><code>--timeout N</code></td><td>both</td><td>Seconds to wait for a page. Default 30.</td></tr>
+    <tr><td><code>--wait MS</code></td><td>scraper</td><td>Extra time for JavaScript. Default 1500.</td></tr>
+    <tr><td><code>--pause N</code></td><td>both</td><td>Seconds between URLs. Default 2.</td></tr>
+    <tr><td><code>--headful</code></td><td>scraper</td><td>Show the browser window.</td></tr>
+    <tr><td><code>--interval N</code></td><td>daemon</td><td>Seconds between cycles. Default 300.</td></tr>
+    <tr><td><code>--once</code></td><td>daemon</td><td>Run one cycle, then exit.</td></tr>
+    <tr><td><code>--diff-only</code></td><td>daemon</td><td>Skip archive files.</td></tr>
+    <tr><td><code>--no-robots</code></td><td>both</td><td>Ignore robots.txt — <b>only on sites you own</b>.</td></tr>
+  </table>
+
+  <p>Every tool also has <code>--help</code>, which prints this same list in your terminal.</p>
+</section>
+
+<!-- ============================ 7. KEEP RUNNING ============================ -->
+<section>
+  <h3 class="num"><span class="n">7</span> Keep the daemon running after you close the terminal</h3>
+  <p class="sub">Optional. Only needed if you want it running unattended.</p>
+
+  <p>By default the daemon lives only while its terminal window is open. To make
+     it start on login and survive reboots, hand it to your operating system.</p>
+
+  <h4>macOS — launchd</h4>
+  <span class="label">Terminal</span>
+  <pre class="cmd"><span class="p">$</span> mkdir -p ~/Library/LaunchAgents
+<span class="p">$</span> cat > ~/Library/LaunchAgents/com.example.scraper.plist <<'XML'
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
+&lt;plist version="1.0"&gt;&lt;dict&gt;
+  &lt;key&gt;Label&lt;/key&gt;&lt;string&gt;com.example.scraper&lt;/string&gt;
+  &lt;key&gt;ProgramArguments&lt;/key&gt;&lt;array&gt;
+    &lt;string&gt;/ABSOLUTE/PATH/open-scraper/.venv/bin/python&lt;/string&gt;
+    &lt;string&gt;/ABSOLUTE/PATH/open-scraper/daemon.py&lt;/string&gt;
+    &lt;string&gt;--targets&lt;/string&gt;
+    &lt;string&gt;/ABSOLUTE/PATH/open-scraper/targets.txt&lt;/string&gt;
+    &lt;string&gt;--interval&lt;/string&gt;&lt;string&gt;300&lt;/string&gt;
+  &lt;/array&gt;
+  &lt;key&gt;WorkingDirectory&lt;/key&gt;
+  &lt;string&gt;/ABSOLUTE/PATH/open-scraper&lt;/string&gt;
+  &lt;key&gt;RunAtLoad&lt;/key&gt;&lt;true/&gt;
+  &lt;key&gt;KeepAlive&lt;/key&gt;&lt;true/&gt;
+&lt;/dict&gt;&lt;/plist&gt;
+XML
+<span class="p">$</span> launchctl load ~/Library/LaunchAgents/com.example.scraper.plist</pre>
+
+  <div class="box warn">
+    <b>Replace every <code>/ABSOLUTE/PATH</code></b> with the real location, e.g.
+    <code>/Users/you/open-scraper</code>. Then stop it with
+    <code>launchctl unload ~/Library/LaunchAgents/com.example.scraper.plist</code>.
+  </div>
+
+  <h4>Linux — cron, every 10 minutes</h4>
+  <span class="label">Run <code>crontab -e</code> and add this line</span>
+  <pre class="cmd"><span class="c">*/10 * * * * cd /path/open-scraper &amp;&amp; .venv/bin/python daemon.py --targets targets.txt --once >> daemon.log 2>&amp;1</span></pre>
+
+  <h4>Windows — Task Scheduler</h4>
+  <p>Create a task that runs
+     <code>C:\path\open-scraper\.venv\Scripts\python.exe daemon.py --targets targets.txt --once</code>,
+     starting in <code>C:\path\open-scraper</code>, and tick
+     <i>"Run whether user is logged on or not"</i>.</p>
+
+  <div class="foot">A ready-to-edit copy of the launchd file and cron line also lives in
+    <code>README.md</code> in the repository.</div>
+</section>
+
+<!-- ============================ 8. TROUBLESHOOTING ============================ -->
+<section>
+  <h3 class="num"><span class="n">8</span> Troubleshooting &amp; the rules</h3>
+  <p class="sub">What goes wrong, what it means, and how to fix it.</p>
+
+  <table>
+    <tr><th style="width:38%">Message you see</th><th>What it means / fix</th></tr>
+    <tr><td><code>Playwright is not installed</code></td>
+        <td>Run <code>.venv/bin/pip install -r requirements.txt</code>.</td></tr>
+    <tr><td>Browser / executable errors</td>
+        <td>Run <code>.venv/bin/playwright install chromium</code>.</td></tr>
+    <tr><td><code>Skip … (robots.txt disallows)</code></td>
+        <td>Expected — that site asked not to be scraped. Add
+            <code>--no-robots</code> only if you own it.</td></tr>
+    <tr><td><code>Timeout 30000ms exceeded</code></td>
+        <td>Slow site. Raise it: <code>--timeout 60</code>.</td></tr>
+    <tr><td>Output is empty</td>
+        <td>The page renders with JavaScript. Try <code>--wait 5000</code>,
+            or add <code>--selector</code>.</td></tr>
+    <tr><td><code>Selector … matched nothing</code></td>
+        <td>Re-copy the CSS selector from your browser's DevTools.</td></tr>
+    <tr><td><code>Targets file not found</code></td>
+        <td>Wrong path, or you are not in the repo folder. Run <code>cd open-scraper</code>
+            first, or pass URLs directly instead.</td></tr>
+    <tr><td><code>these are not http(s) URLs</code></td>
+        <td>A line in <code>targets.txt</code> is missing <code>https://</code>.</td></tr>
+    <tr><td>Daemon stops when I close the terminal</td>
+        <td>Normal — see section 7 to have the OS start it for you.</td></tr>
+  </table>
+
+  <h4>The rules these tools follow</h4>
+  <div class="box">
+    <b>Read-only, always</b>
+    They send <code>GET</code> requests and nothing else. They never submit a form,
+    never post, never like, follow or upload. There is no password, cookie or
+    session handling anywhere in the code — if a page is behind a login, these
+    tools cannot open it.
+  </div>
+  <div class="box">
+    <b>robots.txt is respected by default</b>
+    If a site's robots file says "do not fetch this", the tool skips it and
+    prints <code>SKIP</code>. You have to ask for <code>--no-robots</code> explicitly.
+  </div>
+  <div class="box warn">
+    <b>Your responsibility</b>
+    Only scrape pages you are allowed to scrape, and follow each site's Terms of
+    Service. Politeness defaults (one page at a time, 2-second pauses) are there
+    for a reason — use <code>--pause</code> to slow down further on small sites.
+  </div>
+
+  <div class="box">
+    <b>Nothing personal is in this repository</b>
+    No credentials, no browser profiles, no scraped data. Everything you capture
+    goes into <code>output/</code>, which is gitignored.
+  </div>
+
+  <h4>That's it</h4>
+  <p>You now have both tools installed, tested, and understood. The full
+     reference is <code>README.md</code> in the repository, and this same guide is
+     kept beside it.</p>
+
+  <div class="url" style="font-family:ui-monospace,Menlo,monospace;font-size:9.5pt;background:#f3f4f6;border:1px solid #e1e4e8;padding:9px 13px;border-radius:6px;width:fit-content;">
+    https://github.com/arushvantore/open-scraper
+  </div>
+
+  <div class="foot">
+    <b>open-scraper</b> · MIT License · Created by
+    <b>@arushvantore</b> · Guide generated from a real, working install.
+  </div>
+</section>
+
+</body>
+</html>

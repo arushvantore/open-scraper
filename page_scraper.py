@@ -378,8 +378,17 @@ def scrape_or_die(url, args):
 # --------------------------------------------------------------------------
 
 def load_targets(path):
+    """Read one URL per line from `path`. `#` starts a comment."""
+    p = Path(path)
+    if not p.is_file():
+        sys.exit(
+            "Targets file not found: %s\n"
+            "Create it with one URL per line, for example:\n"
+            "    https://example.com\n"
+            "or pass the URLs directly on the command line." % path
+        )
     urls = []
-    for line in Path(path).read_text(encoding="utf-8").splitlines():
+    for line in p.read_text(encoding="utf-8", errors="replace").splitlines():
         line = line.strip()
         if not line or line.startswith("#"):
             continue

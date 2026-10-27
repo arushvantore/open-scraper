@@ -14,6 +14,22 @@ you in anywhere — the tools only ever send plain `GET` requests.
 
 ---
 
+## 📖 Prefer a printable guide?
+
+**[GUIDE.pdf](GUIDE.pdf)** — a 10-page, step-by-step walkthrough with real
+commands and real terminal output: install, scrape one page, grab a section
+with a selector, scrape a list, run the daemon, keep it running after you
+close the terminal, and full troubleshooting.
+
+- Read it straight from the repo, or download it.
+- Source lives in [`GUIDE.html`](GUIDE.html) — open it in any browser.
+- Rebuild the PDF yourself with `.venv/bin/python make_guide.py`.
+
+If you like reading in your terminal instead, this README is the complete
+reference and covers exactly the same ground.
+
+---
+
 ## Safety promise (read this once)
 
 These tools are built to be boring and safe:
@@ -294,6 +310,9 @@ output/
 ```
 page_scraper.py     one-shot + batch scraper
 daemon.py           change-watching background daemon
+GUIDE.pdf           printable 10-page user guide
+GUIDE.html          editable source of that guide
+make_guide.py       rebuilds GUIDE.pdf from GUIDE.html
 targets.txt         example URL list
 requirements.txt    pinned dependencies (playwright only)
 LICENSE             MIT
