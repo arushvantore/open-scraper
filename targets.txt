@@ -1,0 +1,7 @@
+# One URL per line. Lines starting with # are ignored.
+# Only public pages here - this tool cannot log in anywhere.
+
+https://example.com
+https://www.python.org
+https://en.wikipedia.org/wiki/Web_scraping
+https://news.ycombinator.com

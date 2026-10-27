@@ -1,0 +1,22 @@
+# Never commit any of this.
+.venv/
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Scraped output stays on your machine.
+output/*
+!output/README.md
+daemon.log
+*.log
+state.json
+.state.json
+
+# Browser / login material must never be committed.
+.browser-profile/
+.browser-profile-test/
+cookies.txt
+*.cookies
+secrets.*
+.env
